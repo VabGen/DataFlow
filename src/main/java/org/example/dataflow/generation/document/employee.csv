@@ -1,0 +1,64 @@
+first_name,middle_name,last_name,code,address,email,phone
+John,Doe,1,123 Main St,john.doe@example.com,555-123-4567
+Jane,Smith,2,456 Elm St,jane.smith@example.com,555-987-6543
+Robert,Johnson,3,789 Oak St,robert.johnson@example.com,555-555-5555
+Lisa,Brown,4,101 Maple St,lisa.brown@example.com,555-111-2222
+Michael,Lee,5,222 Pine St,michael.lee@example.com,555-333-4444
+Emily,White,6,333 Cedar St,emily.white@example.com,555-666-7777
+David,Clark,7,444 Birch St,david.clark@example.com,555-888-9999
+Susan,Adams,8,555 Walnut St,susan.adams@example.com,555-444-3333
+William,Turner,9,666 Spruce St,william.turner@example.com,555-222-1111
+Amy,Harris,10,777 Fir St,amy.harris@example.com,555-999-8888
+
+{
+    "firstName":"fff",
+    "middleName":"mm",
+    "lastName":"lll",
+    "address":"aaa",
+    "email":"mmm",
+    "phone":12345,
+    "postId":" b29c087e-3303-4d33-9457-df1168954d75"
+}
+
+{
+    "postName":"fff",
+    "code":123
+}
+
+
+
+
+SELECT id, first_name, middle_name, last_name, post_id, address, email, phone, passport, create_date, post_code
+FROM data_flow.employee;
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA data_flow; CREATE EXTENSION btree_gin;
+--explain analyze
+select * from data_flow.employee
+where first_name like '%oh%' and last_name like '%ue%'
+and (phone = 73 or passport = 8)
+order by create_date;
+
+SET search_path TO data_flow;
+create index employees_last_name_first_name_idx3 on data_flow.employee using gin(first_name, last_name);
+create index employees_last_name_first_name_idx2 on data_flow.employee using gin(last_name gin_trgm_ops);
+create index employee_phone_passport_idx ON data_flow.employee (phone, passport);
+create index employee_create_date_idx ON data_flow.employee (create_date);
+
+SHOW LC_COLLATE;
+
+select COUNT(DISTINCT first_name)::FLOAT as count
+from data_flow.employee;
+select COUNT(first_name)::FLOAT as count
+from data_flow.employee;
+
+explain analyze
+select * from data_flow.employee
+where first_name like '%oh%' and last_name like '%vi%'
+and (phone = 835429063 or passport = 367888051)
+order by create_date;
+
+select * from data_flow.employee
+where phone in (80,2,9,6)
+and passport = 7
+and (lower(first_name) like '%m%' or last_name  like '%v%')
+order by 1;
